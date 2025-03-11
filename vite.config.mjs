@@ -42,7 +42,7 @@ export default () => {
           entryFileNames: '[name].[hash].js'
         }
       },
-      outDir: path.resolve(__dirname, './doc')
+      outDir: path.resolve(__dirname, './dist')
     },
     // local server
     server: {
