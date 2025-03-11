@@ -4,10 +4,13 @@ import eslintPlugin from 'vite-plugin-eslint2';
 import { createHtmlPlugin } from 'vite-plugin-html';
 
 // https://vitejs.dev/config/
-export default () => {
+export default ({ mode }) => {
+  const isProduction = mode === 'production';
+  const BASE = isProduction ? '/sample-cal-heatmap/' : '/';
   const SRC_PATH = 'src';
 
   return defineConfig({
+    base: BASE,
     root: path.resolve(__dirname, SRC_PATH),
     resolve: {
       alias: [
