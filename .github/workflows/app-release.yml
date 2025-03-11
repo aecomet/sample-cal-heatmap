@@ -28,23 +28,17 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
-          run_install: false
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version-file: '.node-version'
-          cache: 'pnpm'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm install
 
       - name: Build app
-        run: pnpm run build
+        run: npm run build
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -54,39 +48,40 @@ jobs:
         with:
           path: './dist'
 
-  generate-svg:
-    name: Generate SVG with Cal-Heatmap
-    runs-on: ubuntu-latest
+  # generate-svg:
+  #   name: Generate SVG with Cal-Heatmap
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: '.node-version'
-          cache: 'pnpm'
+  #     - name: Set up Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version-file: '.node-version'
+  #         cache: 'npm'
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+  #     - name: Install dependencies
+  #       run: npm install
 
-      - name: Build app
-        run: pnpm run build
+  #     - name: Build app
+  #       run: npm run build
 
-      - name: Generate SVG with Cal-Heatmap
-        run: node generate-svg.js
+  #     - name: Generate SVG with Cal-Heatmap
+  #       run: node generate-svg.js
 
-      - name: Commit and push SVG to docs
-        run: |
-          git config --global user.name 'github-actions'
-          git config --global user.email 'github-actions@github.com'
-          git add docs/*.svg
-          git commit -m 'Update SVG output' || echo "No changes to commit"
-          git push
+  #     - name: Commit and push SVG to docs
+  #       run: |
+  #         git config --global user.name 'github-actions'
+  #         git config --global user.email 'github-actions@github.com'
+  #         git add docs/*.svg
+  #         git commit -m 'Update SVG output' || echo "No changes to commit"
+  #         git push
 
   deploy:
-    needs: [build, generate-svg]
+    needs: build
+    # needs: [build, generate-svg]
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
