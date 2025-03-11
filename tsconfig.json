@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    /* build option */
+    "target": "ES2024",
+    "module": "ESNext",
+    "lib": ["DOM", "ESNext"],
+    "moduleResolution": "bundler",
+    "removeComments": true,
+
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/@types"
+    ],
+
+    /* Generates corresponding '.map' file. */
+    "sourceMap": true,
+
+    /* Enable strict options. */
+    "strict": true,
+    "noImplicitReturns": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+
+    /* Imports support */
+    "esModuleInterop": true, // ES モジュールと CommonJS の互換性をサポート
+
+    /* Optimizations for build */
+    "skipLibCheck": true, // サードパーティの型チェックをスキップしてビルド速度を改善
+    "incremental": true, // 増分ビルドを有効にしてパフォーマンス向上
+    "noEmitOnError": true, // エラーがある場合、出力を抑制
+
+    /* resolve options */
+    "baseUrl": "./",
+    "paths": {
+      "@src/*.ts": ["src/*"]
+    }
+  }
+}
