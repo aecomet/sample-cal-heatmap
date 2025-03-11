@@ -54,8 +54,39 @@ jobs:
         with:
           path: './dist'
 
+  generate-svg:
+    name: Generate SVG with Cal-Heatmap
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build app
+        run: pnpm run build
+
+      - name: Generate SVG with Cal-Heatmap
+        run: node generate-svg.js
+
+      - name: Commit and push SVG to docs
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git add docs/*.svg
+          git commit -m 'Update SVG output' || echo "No changes to commit"
+          git push
+
   deploy:
-    needs: build
+    needs: [build, generate-svg]
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
