@@ -1,65 +1,98 @@
+// JSDOM をセットアップ
 import CalHeatmap from 'cal-heatmap';
-import { createCanvas } from 'canvas';
 import fs from 'fs';
 import { JSDOM } from 'jsdom';
 import path from 'path';
+import puppeteer from 'puppeteer';
 
-// JSDOM をセットアップ
-const { window } = new JSDOM('<!DOCTYPE html><html><body></body></html>');
-global.document = window.document;
-global.window = window;
-global.HTMLElement = window.HTMLElement;
-global.Node = window.Node;
+async function main() {
+  const { window } = await new JSDOM('<!DOCTYPE html><html><body><div id="cal-heatmap""></div></body></html>');
+  globalThis.document = window.document;
 
-(async () => {
-  // キャンバスの作成
-  const width = 800;
-  const height = 200;
-  const canvas = createCanvas(width, height);
+  // Cal-Heatmap 作成
+  const cal = await new CalHeatmap();
 
-  // Cal-Heatmap のインスタンス作成
-  const cal = new CalHeatmap();
+  type data = {
+    date: string;
+    commits: number;
+  };
 
-  // 設定
-  await cal.paint({
-    data: {
-      source: async () => {
-        // ダミーデータ生成（過去1年分の日付とランダム値）
-        const endDate = new Date();
-        const startDate = new Date();
-        startDate.setFullYear(endDate.getFullYear() - 1);
+  const heatmapData = async () => {
+    // ダミーデータ生成（過去1年分の日付とランダム値）
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setFullYear(endDate.getFullYear() - 1);
 
-        const data: { [key: number]: number } = {};
-        for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-          data[Math.floor(d.getTime() / 1000)] = Math.floor(Math.random() * 10);
-        }
-        return data;
-      },
-      x: 'timestamp',
-      y: 'value'
-    },
-    range: 12,
-    scale: {
-      color: {
-        type: 'linear',
-        scheme: 'Blues',
-        domain: [0, 10]
-      }
-    },
+    const data: data[] = [];
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+      const year = d.getFullYear() + 1;
+      const month = String(d.getMonth() + 1).padStart(2, '0'); // 月は0から始まるので+1
+      const day = String(d.getDate()).padStart(2, '0');
+
+      data.push({
+        date: `${year}-${month}-${day}`,
+        commits: Math.floor(Math.random() * 10)
+      });
+    }
+
+    return data;
+  };
+
+  const options = {
+    itemSelector: '#cal-heatmap',
     domain: {
       type: 'month',
       gutter: 4
     },
     subDomain: {
-      type: 'day',
-      radius: 2
+      type: 'ghDay',
+      gutter: 2
     },
-    itemSelector: canvas
+    data: {
+      source: await heatmapData(),
+      x: 'date',
+      y: 'commits'
+    },
+    scale: {
+      color: {
+        type: 'threshold',
+        range: ['#ffffff', '#d6ffd6', '#b7ffb7', '#7fff7f	'],
+        domain: [0, 1, 5, 10]
+      }
+    }
+  };
+
+  await cal.paint({ ...options });
+
+  // 出力ファイル名
+  const outputPath1 = await path.join('.', 'docs', 'heatmap1.svg');
+  const outputPath2 = path.join('.', 'docs', 'heatmap2.png');
+
+  // 方法1. simple SVG
+  const heatmapHtml = window.document.body.querySelector('#cal-heatmap')!;
+  const css = await fetch('https://unpkg.com/cal-heatmap/dist/cal-heatmap.css').then((res) => res.text());
+  const styleTag = window.document.createElement('style');
+  styleTag.textContent = css;
+
+  heatmapHtml.appendChild(styleTag);
+
+  await fs.writeFileSync(outputPath1, heatmapHtml.innerHTML);
+
+  // 方法2. Puppeteer を使用してスクリーンショットを取得
+  // use before: npx puppeteer browsers install chrome
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.setContent(window.document.body.innerHTML);
+  await page.addStyleTag({
+    url: 'https://unpkg.com/cal-heatmap/dist/cal-heatmap.css'
   });
 
-  // SVG を保存
-  const outputPath = path.join(__dirname, 'docs', 'heatmap.svg');
-  fs.writeFileSync(outputPath, canvas.toBuffer());
+  const heatmap = await page.$('#cal-heatmap');
+  await heatmap!.screenshot({ path: outputPath2, fullPage: false });
 
-  console.log(`SVG saved to ${outputPath}`);
-})();
+  await browser.close();
+
+  console.log(`SVG saved to ${outputPath1}, ${outputPath2}`);
+}
+
+main();
