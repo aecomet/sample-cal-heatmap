@@ -4,8 +4,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "rund": "tsc -p src/lib/tsconfig.json && node dist/lib/generate-svg.mjs",
-    "rebuild": "npm rebuild canvas"
+    "rund": "tsc -p src/lib/tsconfig.json && node dist/lib/generate-svg.mjs"
   },
   "license": "MIT",
   "devDependencies": {

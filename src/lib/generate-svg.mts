@@ -74,7 +74,7 @@ async function main() {
   const styleTag = window.document.createElement('style');
   styleTag.textContent = css;
 
-  heatmapHtml.appendChild(styleTag);
+  heatmapHtml.querySelector('.ch-container')!.appendChild(styleTag);
 
   await fs.writeFileSync(outputPath1, heatmapHtml.innerHTML);
 
