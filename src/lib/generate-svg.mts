@@ -74,13 +74,16 @@ async function main() {
   const styleTag = window.document.createElement('style');
   styleTag.textContent = css;
 
-  heatmapHtml.appendChild(styleTag);
+  heatmapHtml.querySelector('.ch-container')!.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  heatmapHtml.querySelector('.ch-container')!.appendChild(styleTag);
 
   await fs.writeFileSync(outputPath1, heatmapHtml.innerHTML);
 
   // 方法2. Puppeteer を使用してスクリーンショットを取得
-  // use before: npx puppeteer browsers install chrome
-  const browser = await puppeteer.launch();
+  // use before: pnpm exec puppeteer browsers install chrome
+  const browser = await puppeteer.launch({
+    args: ['--no-sandbox']
+  });
   const page = await browser.newPage();
   await page.setContent(window.document.body.innerHTML);
   await page.addStyleTag({
