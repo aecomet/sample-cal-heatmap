@@ -74,6 +74,7 @@ async function main() {
   const styleTag = window.document.createElement('style');
   styleTag.textContent = css;
 
+  heatmapHtml.querySelector('.ch-container')!.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
   heatmapHtml.querySelector('.ch-container')!.appendChild(styleTag);
 
   await fs.writeFileSync(outputPath1, heatmapHtml.innerHTML);

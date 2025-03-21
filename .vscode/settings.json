@@ -12,5 +12,8 @@
   "eslint.options": {
     "overrideConfigFile": "eslint.config.mjs"
   },
-  "workbench.editor.enablePreview": false
+  "workbench.editor.enablePreview": false,
+  "[xml]": {
+    "editor.defaultFormatter": "redhat.vscode-xml"
+  }
 }
