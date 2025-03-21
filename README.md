@@ -10,6 +10,8 @@ Check out the [live demo](https://aecomet.github.io/sample-cal-heatmap/)
 
 ![Heatmap SVG](docs/heatmap1.svg)
 
+![Test Profile](docs/test.svg)
+
 ## PNG Image
 
 ![Heatmap PNG](docs/heatmap2.png)
